@@ -1,0 +1,10 @@
+export type User={id:string;
+name:string;
+email:string};
+ export type Mood='Happy'|'Calm'|'Neutral'|'Tired'|'Stressed'|'Anxious'|'Sad';
+ export type Session={id:string;
+duration:number;
+startedAt:string;
+completed:boolean;
+technique?:string;
+kind?:string};

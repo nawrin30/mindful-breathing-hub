@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String              @id @default(cuid())
+  name                String
+  email               String              @unique
+  password            String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  breathingSessions   BreathingSession[]
+  meditationSessions  MeditationSession[]
+  moods               MoodEntry[]
+  goals               DailyGoal[]
+  favorites           Favorite[]
+  preference          UserPreference?
+}
+
+model BreathingSession {
+  id          String   @id @default(cuid())
+  userId      String
+  technique   String
+  duration    Int
+  completed   Boolean  @default(false)
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+model MeditationSession {
+  id          String   @id @default(cuid())
+  userId      String
+  duration    Int
+  completed   Boolean  @default(false)
+  sound       String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  mood      String
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model DailyGoal {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  minutes   Int      @default(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  itemType  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId, itemType])
+}
+
+model UserPreference {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  theme           String  @default("light")
+  notifications   Boolean @default(true)
+  defaultDuration Int     @default(5)
+  soundEnabled    Boolean @default(true)
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
